@@ -17,7 +17,7 @@ class Emacspeaker(socketserver.TCPServer):
         self._header = []  # Speech commands to send before speaking
         self._queue = deque()  # TTS queue
         self._cmdMap = {
-            "tts_saytext": functools.partial(
+            "tts_say": functools.partial(
                 speech.speak, priority=speech.priorities.SpeechPriority.NOW
             ),  # todo: handle morpheme boundaries as described in the spec
             "q": self.q,
