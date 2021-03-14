@@ -1,7 +1,7 @@
 import functools
 import socketserver
 import threading
-
+import globalPluginHandler
 import speech
 import versionInfo
 
@@ -136,3 +136,8 @@ def start():
 
 
 # TODO: wrap this logic in an NVDA plugin of some kind.
+
+class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+    def __init__(self):
+        super().__init__()
+        start()
