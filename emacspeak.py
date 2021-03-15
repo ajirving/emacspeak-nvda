@@ -124,6 +124,8 @@ class TCPHandler(socketserver.StreamRequestHandler):
     "Handles incoming TCP data from Emacs and forwards it to the Emacspeaker instance."
 
     def handle(self):
+        #NVDA sets a default timeout of 10 on all socket connections, override it
+        self.connection.settimeout(None)
         for line in self.rfile:
             self.server.parseCommand(line.decode("utf-8").strip())
 
