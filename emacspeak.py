@@ -3,6 +3,7 @@ import socketserver
 import threading
 import globalPluginHandler
 import speech
+from speech.commands import EndUtteranceCommand, RateCommand, BeepCommand
 import versionInfo
 
 from collections import deque
@@ -53,7 +54,7 @@ class Emacspeaker(socketserver.TCPServer):
     def q(self, args):
         "Enqueues text for speaking."
         text = " ".join(args)
-        self._queue.extend([text, speech.EndUtteranceCommand()])
+        self._queue.extend([text, EndUtteranceCommand()])
 
     def d(self, args):
         "Dispatches our internal queue to NVDA's speech framework."
@@ -68,7 +69,7 @@ class Emacspeaker(socketserver.TCPServer):
         res = []
         res.extend(self._header)
         if "character_scale" in self._state:
-            res.append(speech.RateCommand(multiplier=self._state["character_scale"]))
+            res.append(RateCommand(multiplier=self._state["character_scale"]))
         res.extend(list(speech.getSpellingSpeech("".join(args))))
         speech.cancelSpeech()  # Flush NVDA's speech queue
         speech.speak(res, priority=speech.priorities.SpeechPriority.NOW)
@@ -90,12 +91,12 @@ class Emacspeaker(socketserver.TCPServer):
         "Queues a tone of the given length and frequency."
         if len(args) != 2:  # Wrong number of arguments
             return
-        self._queue.append(speech.BeepCommand(float(args[0]), int(args[1])))
+        self._queue.append(BeepCommand(float(args[0]), int(args[1])))
 
     def setRate(self, args):
         "Sets the speech rate to the absolute value given."
         value = int(args[0])
-        self._state["rate_offset"] = value - speech.RateCommand().newValue
+        self._state["rate_offset"] = value - RateCommand().newValue
         self._buildHeader()
 
     def setCharacterScale(self, args):
@@ -117,7 +118,7 @@ class Emacspeaker(socketserver.TCPServer):
         "Builds the header of TTS commands when state is updated."
         self._header = []  # Clear out any previous headers.
         if "rate_offset" in self._state:
-            self._header.append(speech.RateCommand(self._state["rate_offset"]))
+            self._header.append(RateCommand(self._state["rate_offset"]))
 
 
 class TCPHandler(socketserver.StreamRequestHandler):
